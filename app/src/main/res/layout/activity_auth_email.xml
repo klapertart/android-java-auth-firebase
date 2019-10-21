@@ -9,6 +9,7 @@
     android:padding="10dp"
     tools:context=".AuthEmail">
 
+
     <EditText
         android:id="@+id/tv_email"
         android:layout_width="match_parent"

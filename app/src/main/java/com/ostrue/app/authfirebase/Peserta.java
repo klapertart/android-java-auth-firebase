@@ -1,12 +1,12 @@
 package com.ostrue.app.authfirebase;
 
-public class Admin {
+public class Peserta {
     private String username;
     private String email;
 
-    Admin(){}
+    Peserta(){}
 
-    public Admin(String username, String email) {
+    public Peserta(String username, String email) {
         this.username = username;
         this.email = email;
     }
@@ -29,7 +29,7 @@ public class Admin {
 
     @Override
     public String toString() {
-        return "Admin{" +
+        return "Peserta{" +
                 "username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 '}';

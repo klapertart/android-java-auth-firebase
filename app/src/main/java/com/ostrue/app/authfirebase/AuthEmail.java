@@ -22,8 +22,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class AuthEmail extends AppCompatActivity implements View.OnClickListener{
-    private static final String TAG = "LoginActivity";
-
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     private EditText edtEmail;
@@ -39,66 +37,87 @@ public class AuthEmail extends AppCompatActivity implements View.OnClickListener
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
 
-        // diatur sesuai id komponennya
         edtEmail = (EditText)findViewById(R.id.tv_email);
         edtPass = (EditText)findViewById(R.id.tv_pass);
         btnMasuk = (Button) findViewById(R.id.btn_masuk);
         btnDaftar = (Button)findViewById(R.id.btn_daftar);
 
-        //nambahin method onClick, biar tombolnya bisa diklik
         btnMasuk.setOnClickListener(this);
         btnDaftar.setOnClickListener(this);
     }
 
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.btn_masuk     : signIn(); break;
+            case R.id.btn_daftar    : signUp(); break;
+        }
+    }
+
     private void signIn() {
-        Log.d(TAG, "signIn");
+        Log.d("LOGIN Activity", "Sign In");
         if (!validateForm()) {
             return;
         }
 
-        //showProgressDialog();
         String email = edtEmail.getText().toString();
         String password = edtPass.getText().toString();
 
-        Log.i("LOGIN",email+" - "+password);
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "signIn:onComplete:" + task.isSuccessful());
-                        //hideProgressDialog();
+                        Log.d("Sign In", "OnComplete:" + task.isSuccessful());
 
                         if (task.isSuccessful()) {
-                            onAuthSuccess(task.getResult().getUser());
+                            FirebaseUser user = task.getResult().getUser();
+                            Toast.makeText(AuthEmail.this, "Welcome " + user.getEmail() + " :)", Toast.LENGTH_SHORT).show();
+
+                            Intent intent = new Intent(AuthEmail.this, Profile.class);
+                            intent.putExtra("email", user.getEmail());
+                            startActivity(intent);
+
+                            finish();
                         } else {
-                            Toast.makeText(AuthEmail.this, "Sign In Failed",
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AuthEmail.this, "Sign In Failed", Toast.LENGTH_SHORT).show();
                         }
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(AuthEmail.this,"Sign In Failed! " + e.getMessage(),Toast.LENGTH_SHORT);
+                        Log.e("Sign In Failed",e.getMessage());
                     }
                 });
     }
 
     private void signUp() {
-        Log.d(TAG, "signUp");
+        Log.d("Login Activity", "Sign Up");
         if (!validateForm()) {
             return;
         }
 
-        //showProgressDialog();
         String email = edtEmail.getText().toString();
         String password = edtPass.getText().toString();
 
 
-        Log.i("LOGIN",email+" - "+password);
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "createUser:onComplete:" + task.isSuccessful());
-                        //hideProgressDialog();
+                        Log.d("Sign Up", "OnComplete:" + task.isSuccessful());
 
                         if (task.isSuccessful()) {
-                            onAuthSuccess(task.getResult().getUser());
+                            FirebaseUser user = task.getResult().getUser();
+                            String username = (user.getEmail().contains("@")) ? user.getEmail().split("@")[0] : user.getEmail();
+
+                            // write to realtime database
+                            Peserta peserta = new Peserta(username, user.getEmail());
+                            mDatabase.child("peserta").child(user.getUid()).setValue(peserta);
+
+                            startActivity(new Intent(AuthEmail.this,MainActivity.class));
+                            finish();
                         } else {
                             Toast.makeText(AuthEmail.this, "Sign Up Failed",
                                     Toast.LENGTH_SHORT).show();
@@ -108,28 +127,10 @@ public class AuthEmail extends AppCompatActivity implements View.OnClickListener
                 .addOnFailureListener(this, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.e("Error Sign Up :", e.getMessage());
+                        Toast.makeText(AuthEmail.this,"Error :" + e.getMessage(),Toast.LENGTH_SHORT);
+                        Log.e("Error :", e.getMessage());
                     }
                 });
-    }
-
-    private void onAuthSuccess(FirebaseUser user) {
-        String username = usernameFromEmail(user.getEmail());
-
-        // membuat User admin baru
-        writeNewAdmin(user.getUid(), username, user.getEmail());
-
-        // Go to MainActivity
-        startActivity(new Intent(AuthEmail.this, MainActivity.class));
-        finish();
-    }
-
-    private String usernameFromEmail(String email) {
-        if (email.contains("@")) {
-            return email.split("@")[0];
-        } else {
-            return email;
-        }
     }
 
     private boolean validateForm() {
@@ -151,19 +152,4 @@ public class AuthEmail extends AppCompatActivity implements View.OnClickListener
         return result;
     }
 
-    private void writeNewAdmin(String userId, String name, String email) {
-        Admin admin = new Admin(name, email);
-
-        mDatabase.child("admins").child(userId).setValue(admin);
-    }
-
-    @Override
-    public void onClick(View v) {
-        int i = v.getId();
-        if (i == R.id.btn_masuk) {
-            signIn();
-        } else if (i == R.id.btn_daftar) {
-            signUp();
-        }
-    }
 }
