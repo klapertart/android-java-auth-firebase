@@ -4,26 +4,26 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:gravity="center"
-    tools:context=".MainActivity">
+    android:orientation="vertical"
+    tools:context=".AuthGoogle">
+
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/signInButton"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
 
     <Button
-        android:id="@+id/authEmail"
-        android:layout_width="match_parent"
+        android:id="@+id/signOut"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Auth Email"
         android:background="@color/colorPrimary"
+        android:text="Sign Out"
         android:textColor="@color/white"
-        android:layout_margin="10dp"/>
-
-    <Button
-        android:id="@+id/authGoogle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Auth Google"
-        android:background="@color/colorPrimary"
-        android:textColor="@color/white"
-        android:layout_margin="10dp"/>
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:visibility="gone"
+        />
 
 </androidx.appcompat.widget.LinearLayoutCompat>

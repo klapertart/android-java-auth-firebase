@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
-    private Button btnAuthEmail;
+    private Button btnAuthEmail, btnAuthGoogle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,11 +16,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         btnAuthEmail = findViewById(R.id.authEmail);
+        btnAuthGoogle = findViewById(R.id.authGoogle);
+
         btnAuthEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(),AuthEmail.class);
-                startActivity(intent);
+                startActivity(new Intent(getApplicationContext(),AuthEmail.class));
+            }
+        });
+
+        btnAuthGoogle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(),AuthGoogle.class));
             }
         });
     }
